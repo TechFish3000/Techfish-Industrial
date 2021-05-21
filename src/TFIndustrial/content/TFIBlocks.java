@@ -73,8 +73,33 @@ public class TFIBlocks implements ContentList {
     }};
 
     plastaniumDrill = new ConfigurableDrill("plastanium-drill"){{
-        lootTable = new ItemStack[][]{with(Items.sand, 1), with(Items.sand, 1, Items.copper, 1, Items.coal, 1)};
-    
+        requirements(Category.crafting, with(Items.titanium, 10));
+        size = 2;
+        hasPower = true;
+        hasLiquids = false;
+        craftTime = 80;
+        craftEffect = Fx.mineBig;
+
+        fct = new FlexibleConsumeTable(2);
+        fct.addItems(with(Items.scrap, 100));
+        fct.SwitchTable();
+        fct.addPower(1.2f);
+        
+        lootTable = new Item[][]{
+            {}, 
+            {Items.sand}, 
+            {Items.sand, Items.copper, Items.coal}, 
+            {Items.copper, Items.coal, Items.lead}, 
+            {Items.copper, Items.coal, Items.lead}, 
+            {Items.coal, Items.lead},
+            {Items.coal, Items.lead, Items.titanium},
+            {Items.lead, Items.titanium},
+            {Items.titanium, Items.thorium},
+            {Items.thorium},
+            {Items.surgeAlloy}};
+        allPossible = new Item[]{Items.sand, Items.copper, Items.coal, Items.lead, Items.titanium, Items.thorium, Items.surgeAlloy};
+        specialChances = new ItemChance[][]{{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {new ItemChance(Items.surgeAlloy, 0.25)}};
+        DepthColors = new Color[]{Color.valueOf("646464"),Color.valueOf("f5e187"),Color.valueOf("c2915d"),Color.valueOf("c97f34"),Color.valueOf("c97f34"),Color.valueOf("634370"),Color.valueOf("522c94"),Color.valueOf("8243f0"),Color.valueOf("b14aff"),Color.valueOf("d91cff"),Color.valueOf("ee00ff")};
     }};
 
     }

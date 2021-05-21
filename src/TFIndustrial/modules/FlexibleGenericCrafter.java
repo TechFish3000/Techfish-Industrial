@@ -14,6 +14,7 @@ import mindustry.ui.dialogs.*;
 import mindustry.entities.*;
 import mindustry.world.blocks.production.*;
 import arc.math.Mathf;
+import TFIndustrial.modules.*;
 
 public class FlexibleGenericCrafter extends GenericCrafter{
     
@@ -31,6 +32,7 @@ public class FlexibleGenericCrafter extends GenericCrafter{
         
         @Override
         public float efficiency(){
+            
             //disabled -> 0 efficiency
             if(!enabled) return 0;
             return power != null && (fct.isPowerNeeded()) ? (power.status * fct.getPowerNeeded()) : 1f;

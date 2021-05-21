@@ -2,8 +2,11 @@ package TFIndustrial.modules;
 
 
 
+import java.io.Console;
+
 import TFIndustrial.modules.FlexibleGenericCrafter.FlexibleGenericCrafterBuild;
-import javafx.scene.control.Tab;
+import arc.util.Log;
+import arc.util.Log.LogLevel;
 import mindustry.type.Item;
 import mindustry.type.ItemStack;
 import mindustry.type.LiquidStack;
@@ -13,7 +16,7 @@ public class FlexibleConsumeTable{
     FlexibleGenericCrafterBuild crafter;
     ItemStack[][] ItemConsTable;
     float[] PowerConsTable;
-    LiquidNeed[][] LiquidConsTable;
+    LiquidNeed[] LiquidConsTable;
 
     int SelectedTable = 0;
     int TableSize = 0;
@@ -22,7 +25,7 @@ public class FlexibleConsumeTable{
         TableSize = size;
         ItemConsTable = new ItemStack[size][];
         PowerConsTable = new float[size];
-        LiquidConsTable = new LiquidNeed[size][];
+        LiquidConsTable = new LiquidNeed[size];
     }
 
     // attach entity
@@ -40,11 +43,11 @@ public class FlexibleConsumeTable{
     
     
     // handles liquid adding
-    public void addLiquids(LiquidNeed[] liquids){
-        addLiquids(SelectedTable, liquids);
+    public void addLiquid(LiquidNeed liquid){
+        addLiquid(SelectedTable, liquid);
     }
-    public void addLiquids(int TableIndex, LiquidNeed[] liquids){
-        LiquidConsTable[TableIndex] = liquids;
+    public void addLiquid(int TableIndex, LiquidNeed liquid){
+        LiquidConsTable[TableIndex] = liquid;
     }
 
 
@@ -76,7 +79,11 @@ public class FlexibleConsumeTable{
     }
 
     public boolean CurrentConsValid(){
-        boolean valid = crafter.items.has(ItemConsTable[SelectedTable]) && LiquidConsTable[SelectedTable][0].valid(crafter) && crafter.power.status != 0;
+        boolean valid = true;
+        valid = valid && !(ItemConsTable[SelectedTable] != null && !crafter.items.has(ItemConsTable[SelectedTable]));
+        //Log.info(LiquidConsTable[SelectedTable]);
+        valid = valid && !(LiquidConsTable[SelectedTable] != null && !LiquidConsTable[SelectedTable].valid(crafter));
+        //valid = valid && !(crafter.power.status != 0);
         return valid;
         
         
@@ -100,8 +107,8 @@ public class FlexibleConsumeTable{
             crafter.items.remove(ItemConsTable[SelectedTable]);
         }
         
-        if (LiquidConsTable[SelectedTable].length != 0){
-            crafter.liquids.remove(LiquidConsTable[SelectedTable][0].lq, LiquidConsTable[SelectedTable][0].amount);
+        if (LiquidConsTable[SelectedTable] != null){
+            crafter.liquids.remove(LiquidConsTable[SelectedTable].lq, LiquidConsTable[SelectedTable].amount);
         }
 
         
