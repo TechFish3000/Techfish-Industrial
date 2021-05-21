@@ -41,7 +41,9 @@ public class TFIBlocks implements ContentList {
     public static Block
 
     // production
-    siliconCrusher;
+    siliconCrusher,
+    //drills
+    plastaniumDrill;
 
     @Override
     public void load(){
@@ -56,8 +58,23 @@ public class TFIBlocks implements ContentList {
         craftEffect = Fx.smeltsmoke;
         outputItem = new ItemStack(Items.scrap, 2);
 
-        consumes.power(1.8f);
-        consumes.items(with(Items.silicon, 2));
+        fct = new FlexibleConsumeTable(2);
+        fct.addItems(with(Items.silicon, 2));
+        fct.addPower(0.5f);
+        fct.SwitchTable();
+        fct.addItems(with(Items.graphite, 2));
+        fct.addPower(0.5f);
+        
+        
+        
+        consumes.power(1f);
+        
+        //consumes.items(with(Items.silicon, 2));
+    }};
+
+    plastaniumDrill = new ConfigurableDrill("plastanium-drill"){{
+        lootTable = new ItemStack[][]{with(Items.sand, 1), with(Items.sand, 1, Items.copper, 1, Items.coal, 1)};
+    
     }};
 
     }
