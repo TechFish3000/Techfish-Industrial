@@ -73,6 +73,7 @@ public class FlexibleConsumeTable{
         if (TableIndex < 0 || TableIndex > TableSize - 1){
             return -1;
         }
+        SelectedTable = TableIndex;
 
 
         return OldTable;
@@ -80,9 +81,10 @@ public class FlexibleConsumeTable{
 
     public boolean CurrentConsValid(){
         boolean valid = true;
-        valid = valid && !(ItemConsTable[SelectedTable] != null && !crafter.items.has(ItemConsTable[SelectedTable]));
+        Log.info(crafter.items);
+        valid = !(ItemConsTable[SelectedTable] != null && !crafter.items.has(ItemConsTable[SelectedTable])) ? valid : false;
         //Log.info(LiquidConsTable[SelectedTable]);
-        valid = valid && !(LiquidConsTable[SelectedTable] != null && !LiquidConsTable[SelectedTable].valid(crafter));
+        valid = !(LiquidConsTable[SelectedTable] != null && !LiquidConsTable[SelectedTable].valid(crafter)) ? valid : false;
         //valid = valid && !(crafter.power.status != 0);
         return valid;
         

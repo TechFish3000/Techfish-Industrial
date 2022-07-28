@@ -74,13 +74,19 @@ public class TFIBlocks implements ContentList {
 
     plastaniumDrill = new ConfigurableDrill("plastanium-drill"){{
         requirements(Category.crafting, with(Items.titanium, 10));
-        size = 2;
+        size = 3;
+        hasItems = true;
         hasPower = true;
         hasLiquids = false;
         craftTime = 80;
         craftEffect = Fx.mineBig;
+        configurable = true;
+        hasShadow = true;
+        acceptsItems = true;
+        
 
         fct = new FlexibleConsumeTable(2);
+        
         fct.addItems(with(Items.scrap, 100));
         fct.SwitchTable();
         fct.addPower(1.2f);

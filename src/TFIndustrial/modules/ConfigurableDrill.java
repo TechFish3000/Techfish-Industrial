@@ -1,7 +1,5 @@
 package TFIndustrial.modules;
 
-
-
 import arc.Core;
 import arc.func.Boolf;
 import arc.graphics.Color;
@@ -35,93 +33,84 @@ import mindustry.world.blocks.production.GenericCrafter;
 
 import TFIndustrial.modules.*;
 
-public class ConfigurableDrill extends FlexibleGenericCrafter{
-    
+public class ConfigurableDrill extends FlexibleGenericCrafter {
+
     public TextureRegion[] regions = new TextureRegion[2];
     public Item[][] lootTable;
     public ItemChance[][] specialChances;
     public Item[] allPossible;
     public Color[] DepthColors;
-    public String[] ModeNames = {"Adjusting", "Mining"};
-    public Color[] ModeColors = {Color.valueOf("FF0000"), Color.valueOf("00FF00")};
+    public String[] ModeNames = { "Adjusting", "Mining" };
+    public Color[] ModeColors = { Color.valueOf("FF0000"), Color.valueOf("00FF00") };
 
-    public ConfigurableDrill(String name){
+    public ConfigurableDrill(String name) {
         super(name);
-        
     }
+
     
-    
-    
-    public void load(){
+    public void load() {
         super.load();
-        
+
         regions[0] = Core.atlas.find(name);
         regions[1] = Core.atlas.find(name + "-rotator");
-        Log.info(name);
-        arc.util.Log.info(regions[0]);
-        arc.util.Log.info(regions[1]);
+        // Log.info(name);
+        // arc.util.Log.info(regions[0]);
+        // arc.util.Log.info(regions[1]);
     }
 
-    public class ConfigurableDrillBuild extends FlexibleGenericCrafterBuild{
-        
+    public class ConfigurableDrillBuild extends FlexibleGenericCrafterBuild {
 
         int DrillDepth = 0;
         int TargetDepth = 0;
-        
-        
+
         int Mode = 0;
-        
-        
-        
-        
-        
-        
-        public void created(){
+
+        public void created() {
             super.created();
             Mode = 0;
             fct.SwitchTable(0);
+            fct.attachEntity(this);
         }
 
-        
-        public void draw(){
+        public void draw() {
             Draw.rect(regions[0], x, y);
             Draw.rect(regions[1], x, y, totalProgress * 2);
             Fonts.outline.draw(String.valueOf(DrillDepth), x, y + 2, DepthColors[DrillDepth], 0.4f, true, 1);
             Fonts.outline.draw(ModeNames[Mode], x, y - 6, ModeColors[Mode], 0.2f, false, 1);
-            
-            if (TargetDepth != DrillDepth){
-                Fonts.outline.draw("(" + String.valueOf(TargetDepth) + ")", x, y + 8, DepthColors[TargetDepth], 0.2f, false, 1);
+
+            if (TargetDepth != DrillDepth) {
+                Fonts.outline.draw("(" + String.valueOf(TargetDepth) + ")", x, y + 8, DepthColors[TargetDepth], 0.2f,
+                        false, 1);
             }
         }
 
-        
-        
-        public void buildConfiguration(Table parent){
-            final Table table = parent.fill();
+        @SuppressWarnings("unused")
+        public void buildConfiguration(Table parent) {
+            Table table = parent.fill();
 
             // turn from mining to adjusting
-            table.button(Icon.pause, Styles.clearTransi, () -> {
+
+            Button adjust = table.button(Icon.pause, Styles.clearTransi, () -> {
                 configure(1);
             }).size(40).disabled(Mode == 0).get();
 
             // turn from adjusting to mining
-            table.button(Icon.play, Styles.clearTransi, () -> {
+            Button mine = table.button(Icon.play, Styles.clearTransi, () -> {
                 configure(2);
             }).size(40).disabled(Mode == 1).get();
 
             // increase target layer
-            table.button(Icon.download, Styles.clearTransi, () -> {
+            Button descend = table.button(Icon.download, Styles.clearTransi, () -> {
                 configure(3);
-            }).size(40).disabled(Mode == 1 || DrillDepth == lootTable.length).get();
+            }).size(40).disabled(Mode == 1 || TargetDepth == lootTable.length - 1).get();
 
             // go to top
-            table.button(Icon.upOpen, Styles.clearTransi, () -> {
+            Button reset = table.button(Icon.upOpen, Styles.clearTransi, () -> {
                 configure(4);
-            }).size(40).disabled(Mode == 1 || DrillDepth == 0).get();
+            }).size(40).disabled(Mode == 1 || TargetDepth == 0).get();
         }
 
-        
-        public void configured(Unit player, Object value){
+        public void configured(Unit player, Object value) {
             if (value.equals(1)) {
                 Mode = 0;
                 fct.SwitchTable(0);
@@ -129,11 +118,11 @@ public class ConfigurableDrill extends FlexibleGenericCrafter{
             if (value.equals(2)) {
                 Mode = 1;
                 fct.SwitchTable(1);
-                //this.cons.update()
+                // this.cons.update()
             }
             if (value.equals(3)) {
                 TargetDepth++;
-    
+
             }
             if (value.equals(4)) {
                 TargetDepth = 0;
@@ -141,28 +130,27 @@ public class ConfigurableDrill extends FlexibleGenericCrafter{
         }
 
         @Override
-        public void updateTile(){
-            if (fct.CurrentConsValid() && ((Mode == 0 && TargetDepth != DrillDepth) || Mode == 1)){
+        public void updateTile() {
+            if (consValid() && ((Mode == 0 && TargetDepth != DrillDepth) || Mode == 1)) {
                 progress += this.getProgressIncrease(craftTime);
                 totalProgress += delta();
                 warmup = Mathf.lerpDelta(warmup, 1, 0.02f);
 
-                if (Mathf.chanceDelta(updateEffectChance)){
+                if (Mathf.chanceDelta(updateEffectChance)) {
                     updateEffect.at(x + Mathf.range(block.size * 4), y + Mathf.range(block.size * 4));
-                }
-                else {
+                } else {
                     warmup = Mathf.lerp(warmup, 0, 0.02f);
                 }
             }
 
-            if (progress >= 1){
-                if (Mode == 0){
+            if (progress >= 1) {
+                if (Mode == 0) { // adjusting
                     fct.consume();
 
-                    if (DrillDepth < TargetDepth){
+                    if (DrillDepth < TargetDepth) {
                         DrillDepth++;
                     }
-                    if (DrillDepth > TargetDepth){
+                    if (DrillDepth > TargetDepth) {
                         DrillDepth--;
                     }
 
@@ -170,63 +158,59 @@ public class ConfigurableDrill extends FlexibleGenericCrafter{
                     progress %= 1;
                 }
 
-                int outsum = 0;
+                int outsum = 0;// amount possible? not sure
 
-                for (Item item : allPossible){
+                for (Item item : allPossible) {
                     outsum += items.get(item);
                 }
-                
+
                 if (Mode == 1 && outsum < block.itemCapacity) {
                     fct.consume();
 
-                    Item chosenItem = lootTable[DrillDepth][ Mathf.random(0, lootTable[DrillDepth].length - 1)];
+                    Item chosenItem = lootTable[DrillDepth][Mathf.random(0, lootTable[DrillDepth].length - 1)];
                     ItemChance chosenItemChance = new ItemChance(chosenItem, 1.0);
-                    
-                    for (int i = 0; i < specialChances[DrillDepth].length; i++){
-                        if (specialChances[DrillDepth][i].item == chosenItem){
+
+                    for (int i = 0; i < specialChances[DrillDepth].length; i++) {
+                        if (specialChances[DrillDepth][i].item == chosenItem) {
                             chosenItemChance = specialChances[DrillDepth][i];
-                            
+
                             break;
                         }
                     }
 
-                    
                     if (Mathf.chance(chosenItemChance.chance)) {
                         offload(chosenItem);
                     }
                     craftEffect.at(x, y);
                     progress %= 1;
 
-                } 
-
-
+                }
 
             }
-
-
 
             // loads of shite
 
-
-            if (outputItem != null && timer(timerDump, dumpTime)){
-                for (Item i : allPossible){
-                    if (dump(i)) {break;}
+            if (outputItem != null && timer(timerDump, dumpTime)) {
+                for (Item i : allPossible) {
+                    if (dump(i)) {
+                        break;
+                    }
                 }
-                
-                
+
             }
-        } 
-       
-        public void read(Reads reads, Byte revision){
+        }
+
+        public void read(Reads reads, Byte revision) {
             super.read(reads, revision);
             Mode = reads.i();
 
             DrillDepth = reads.i();
             TargetDepth = reads.i();
         }
+
         // finish read + write code
         // yeet
-        public void write(Writes writes){
+        public void write(Writes writes) {
             super.write(writes);
             writes.i(Mode);
             writes.i(DrillDepth);
@@ -234,5 +218,3 @@ public class ConfigurableDrill extends FlexibleGenericCrafter{
         }
     }
 }
-
-
